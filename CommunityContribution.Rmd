@@ -34,7 +34,7 @@ ggplot(bigfoot, aes(long, lat)) +
 ```{r}
 world_map = map_data("world")
 ggplot(bigfoot, aes(x = long, y = lat))+
-  geom_map(data = world_map, map = world_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_map(data = world_map, map = world_map, aes(map_id=region))+
   expand_limits(x = world_map$long, y = world_map$lat)+
   geom_point(size=0.25, color = "red")
 ```
@@ -43,7 +43,7 @@ ggplot(bigfoot, aes(x = long, y = lat))+
 ```{r}
 us_map = map_data("state")
 ggplot(bigfoot, aes(x = long, y = lat))+
-  geom_map(data = us_map, map = us_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_map(data = us_map, map = us_map, aes(map_id=region))+
   geom_point(size=0.25, color = "red")
 ```
 
@@ -59,7 +59,7 @@ fewPoints = filtered_data
 
 
 ggplot(filtered_data, aes(x = long, y = lat))+
-  geom_map(data = us_map, map = us_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_map(data = us_map, map = us_map, aes(map_id=region))+
   geom_point(size=0.25, color = "red")
 
 ```
@@ -90,7 +90,7 @@ data_with_states<- fewPoints |> mutate(state = tolower(lonlat_to_state(fewPoints
 data_with_states = data_with_states |> filter(!is.na(state))
 summarizedData = data_with_states |> group_by(state) |> summarize(totalSightings = n()) |> ungroup()
 ggplot(data_with_states, aes(x = long, y = lat))+
-  geom_map(data = us_map, map = us_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_map(data = us_map, map = us_map, aes(map_id=region))+
   geom_point(size=0.25, color = "red")+
   xlim(-126,-60)+
   ylim(24.4,49.4)
@@ -110,7 +110,7 @@ washington_data <- data_with_states %>%
   filter(state == "washington")
 washington_map <- map_data("state", region = "washington")
 ggplot(washington_data, aes(x = long, y = lat)) +
-  geom_map(data = washington_map, map = washington_map, aes(map_id = region), inherit.aes = FALSE) +
+  geom_map(data = washington_map, map = washington_map, aes(map_id = region)) +
   geom_point(size = 0.25, color = "red") +
   expand_limits(x = washington_map$long, y=washington_map$lat)
 
