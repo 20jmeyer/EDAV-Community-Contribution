@@ -1,0 +1,108 @@
+---
+title: "ContributionVideo"
+output: html_document
+date: "2023-10-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(maps)
+library(mapproj)
+library(sf)
+```
+
+## Visualizing Spatial Data on Maps with `geom_map`
+
+In this notebook, we will show you how to create map visualizations of Bigfoot sightings across the country. 
+
+```{r cars}
+bigfoot = read.csv('Bigfoot_Sightings.csv') %>%
+  select(long=X, lat=Y, time=TimeWhen)
+str(bigfoot)
+```
+
+### What would just `geom_point`
+
+```{r}
+ggplot(bigfoot, aes(long, lat)) + 
+  geom_point(size = .25, show.legend = FALSE)
+```
+
+```{r}
+world_map = map_data("world")
+ggplot(bigfoot, aes(x = long, y = lat))+
+  geom_map(data = world_map, map = world_map, aes(map_id=region), inherit.aes = FALSE)+
+  expand_limits(x = world_map$long, y = world_map$lat)+
+  geom_point(size=0.25, color = "red")
+```
+
+
+```{r}
+us_map = map_data("state")
+ggplot(bigfoot, aes(x = long, y = lat))+
+  geom_map(data = us_map, map = us_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_point(size=0.25, color = "red")
+```
+
+
+
+```{r}
+filtered_data <- bigfoot %>%
+  filter(lat >= 24.4 &
+         lat <= 49.4 &
+         long >= -125.0 &
+         long <= -66.9)
+fewPoints = filtered_data
+
+
+ggplot(filtered_data, aes(x = long, y = lat))+
+  geom_map(data = us_map, map = us_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_point(size=0.25, color = "red")
+
+```
+
+
+```{r}
+library(rnaturalearth)
+library(maps)
+lonlat_to_state <- function(fewPoints,
+                            states = spData::us_states,
+                            name_col = "NAME") {
+    ## Convert points data.frame to an sf POINTS object
+    pts <- st_as_sf(fewPoints, coords = 1:2, crs = 4326)
+
+    ## Transform spatial data to some planar coordinate system
+    ## (e.g. Web Mercator) as required for geometric operations
+    states <- st_transform(states, crs = 3857)
+    pts <- st_transform(pts, crs = 3857)
+
+    ## Find names of state (if any) intersected by each point
+    state_names <- states[[name_col]]
+    ii <- as.integer(st_intersects(pts, states))
+    state_names[ii]
+}
+us_states_ne <- ne_states(country = "United States of America",
+                          returnclass = "sf")
+data_with_states<- fewPoints |> mutate(state = tolower(lonlat_to_state(fewPoints, states = us_states_ne, name_col = "name")))
+data_with_states = data_with_states |> filter(!is.na(state))
+summarizedData = data_with_states |> group_by(state) |> summarize(totalSightings = n()) |> ungroup()
+ggplot(data_with_states, aes(x = long, y = lat))+
+  geom_map(data = us_map, map = us_map, aes(map_id=region), inherit.aes = FALSE)+
+  geom_point(size=0.25, color = "red")+
+  xlim(-126,-60)+
+  ylim(24.4,49.4)
+data_with_states = data_with_states |> merge(summarizedData,by="state")
+
+ggplot(data_with_states, aes(map_id = state))+
+  geom_map(aes(fill = totalSightings), map = us_map)+
+expand_limits(x = us_map$long, y=us_map$lat)
+#ggplot(summarizedData, aes(map_id = state))+
+#  geom_map(aes(fill = totalSightings), map = states_map)+
+#expand_limits(x = states_map$long, y=states_map$lat)
+```
+
+
+
