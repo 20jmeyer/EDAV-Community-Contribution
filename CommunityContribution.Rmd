@@ -104,5 +104,17 @@ expand_limits(x = us_map$long, y=us_map$lat)
 #expand_limits(x = states_map$long, y=states_map$lat)
 ```
 
+Now for just a state map:
+```{r}
+washington_data <- data_with_states %>%
+  filter(state == "washington")
+washington_map <- map_data("state", region = "washington")
+ggplot(washington_data, aes(x = long, y = lat)) +
+  geom_map(data = washington_map, map = washington_map, aes(map_id = region), inherit.aes = FALSE) +
+  geom_point(size = 0.25, color = "red") +
+  expand_limits(x = washington_map$long, y=washington_map$lat)
+
+```
+
 
 
