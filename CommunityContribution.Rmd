@@ -99,9 +99,6 @@ data_with_states = data_with_states |> merge(summarizedData,by="state")
 ggplot(data_with_states, aes(map_id = state))+
   geom_map(aes(fill = totalSightings), map = us_map)+
 expand_limits(x = us_map$long, y=us_map$lat)
-#ggplot(summarizedData, aes(map_id = state))+
-#  geom_map(aes(fill = totalSightings), map = states_map)+
-#expand_limits(x = states_map$long, y=states_map$lat)
 ```
 
 Now for just a state map:
